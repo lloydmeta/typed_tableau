@@ -6,4 +6,4 @@ authors = ["Lloyd <lloydmeta@gmail.com>"]
 [dependencies]
 frunk_core = "0.0.15"
 console = "0.4.2"
-tableau= { git = "https://github.com/mitsuhiko/tableau", rev = "a22e45d" }
+tableau= { git = "https://github.com/mitsuhiko/tableau", rev = "99998ac" }

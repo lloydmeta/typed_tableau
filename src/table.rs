@@ -24,9 +24,7 @@ pub struct Table<R> {
 /// # extern crate typed_tableau;
 /// # use typed_tableau::*;
 /// # fn main() {
-/// let t = table(hlist![
-///     column::<String>("Name"), column::<usize>("Age"), column::<bool>("Married")
-/// ]);
+/// let t = table(column::<String>("Name").column::<usize>("Age").column::<bool>("Married"));
 /// # }
 /// ```
 pub fn table<H>(columns: H) -> Table<<H as CellTypeExtractor>::Out>
@@ -82,7 +80,7 @@ impl<R> Table<R> {
         let mut tableau_table = tableau::Table::new();
 
         if self.columns.len() > 0 {
-            let mut h_row = tableau_table.add_head_row();
+            let mut h_row = tableau_table.add_head();
             for h in self.columns {
                 let c = tableau::Cell::from(h);
                 h_row.add_cell(c);
@@ -90,7 +88,7 @@ impl<R> Table<R> {
         }
 
         for r in self.rows {
-            let mut u_row = tableau_table.add_row();
+            let mut u_row = tableau_table.add();
             let t_row: Vec<tableau::Cell> = FromHet::from_het(r);
             for ut_cell in t_row {
                 u_row.add_cell(ut_cell);
@@ -278,6 +276,7 @@ impl<H, T> FromHet<HCons<H, T>> for Vec<tableau::Cell>
 #[cfg(test)]
 mod tests {
 
+    use sugar::*;
     use super::*;
 
     #[test]
@@ -285,31 +284,29 @@ mod tests {
         type Columns = Hlist![Cell<i32>, Cell<bool>, Cell<f32>];
         let mut t: Table<Columns> = Table::typed();
         for i in 1..11 {
-            t.add_row(hlist![cell(i), cell(i % 2 == 0), cell(i as f32)])
+            t.add_row(cell(i).cell(i % 2 == 0).cell(i as f32))
         }
         assert_eq!(t.rows.len(), 10)
     }
 
     #[test]
     fn adding_to_Table_with_header() {
-        let mut t = table(hlist![column::<String>("Name"),
-                                 column::<usize>("Age"),
-                                 column::<bool>("Married")]);
+        let mut t = table(column::<String>("Name").column::<usize>("Age").column::<bool>("Married"));
         for i in 1..6 {
-            t.add_row(hlist![cell(format!("Joe {}", i)), cell(i + 10), cell(i % 2 == 0)])
+            t.add_row(cell(format!("Joe {}", i))   .cell(i + 10)         .cell(i % 2 == 0))
         }
         assert_eq!(t.rows.len(), 5)
     }
 
     #[test]
     fn into_untyped() {
-        let mut t = table(hlist![column::<String>("Name"),
-                                 column::<usize>("Age"),
-                                 column::<bool>("Married")]);
+        let mut t = table(column::<String>("Name").
+                          column::<usize>("Age").
+                          column::<bool>("Married"));
         for i in 1..6 {
-            t.add_row(hlist![cell(format!("Joe {}", i)).align(Alignment::Left),
-                             cell(i + 10),
-                             cell(i % 2 == 0)])
+            t.add_row(cell(format!("Joe {}", i)).align(Alignment::Left).
+                      cell(i + 10).
+                      cell(i % 2 == 0))
         }
         t.into_untyped();
     }
